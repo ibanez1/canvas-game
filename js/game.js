@@ -3,7 +3,8 @@ function Game(canvadId) {
   this.ctx = this.canvas.getContext("2d");
   this.background = new Background(this);
   this.player = new Player(this);
-
+  
+ 
   this.obstacles = [];
 
   this.reset();
@@ -13,11 +14,14 @@ function Game(canvadId) {
 }
 
 Game.prototype.start = function() {
-  setInterval(
+  this.intervalId = setInterval(
     function() {
       this.clear();
       this.draw();
       this.moveAll();
+      if (this.isCollision()) {
+        this.gameOver();
+      }
 
       if (this.framesCounter % (Math.floor(Math.random() * 55) + 105) == 0) {
         this.generateObstacle();
@@ -29,9 +33,12 @@ Game.prototype.start = function() {
   );
 };
 
-Game.prototype.stop = function() {};
+Game.prototype.stop = function() {
+  clearInterval(this.intervalId);
+};
 
 Game.prototype.gameOver = function() {
+  console.log("pepe");
   this.stop();
 
   if (confirm("GAME OVER. Play again?")) {
@@ -42,15 +49,29 @@ Game.prototype.gameOver = function() {
 
 Game.prototype.reset = function() {};
 
-Game.prototype.isCollision = function() {};
+Game.prototype.isCollision = function() {
+  var control = false;
+  this.obstacles.forEach(
+    function(obstacle) {
+      if (
+        this.player.x + this.player.w - 10 > obstacle.x &&
+        this.player.y + this.player.h - 20 > obstacle.y &&
+        this.player.x - 50 < obstacle.x 
+      ) {
+        control = true;
+        return;
+      }
+    }.bind(this)
+  );
+  return control;
+};
 
 Game.prototype.clearObstacles = function() {
-  
-this.obstacles = this.obstacles.filter(function(e) {
-    console.log(e.x)
-    return e.x > 0;
-
-  }.bind(this));
+  this.obstacles = this.obstacles.filter(
+    function(e) {
+      return e.x > 0;
+    }.bind(this)
+  );
 };
 
 Game.prototype.generateObstacle = function() {
@@ -67,6 +88,9 @@ Game.prototype.draw = function() {
   this.obstacles.forEach(function(e) {
     e.draw();
   });
+  this.player.bullet.forEach(function(e) {
+    e.draw();
+  });
 };
 
 Game.prototype.moveAll = function() {
@@ -75,4 +99,8 @@ Game.prototype.moveAll = function() {
   this.obstacles.forEach(function(e) {
     e.move();
   });
+  this.player.bullet.forEach(function(e) {
+    e.move();
+  });
+  
 };

@@ -14,7 +14,10 @@ function Player(game) {
   this.img.src = "img/player.png";
   this.img.frames = 3;
   this.img.frameIndex = 0;
+  this.bullet = [];
   this.setListeners();
+  
+  
 }
 
 Player.prototype.draw = function() {
@@ -33,20 +36,26 @@ Player.prototype.draw = function() {
   if (this.game.framesCounter % 10 === 0) {
     this.animateImg();
   }
+
 };
 
 Player.prototype.setListeners = function() {
   document.onkeydown = function(event) {
     if (event.keyCode === KEY_UP) {
-      if (this.y === this.y0) {
-        this.y -= 5;
-        this.vy -= 10;
+      if (this.y >= this.y0) {
+        this.y -= 10;
+        this.vy -= 15;
       }
+    }
+    if(event.keyCode === SPACE){
+      this.shoot();
     }
   }.bind(this);
 };
 
-Player.prototype.shoot = function() {};
+Player.prototype.shoot = function() {
+  this.bullet.push(new Bullet(this.game));
+};
 
 Player.prototype.animateImg = function() {
   if (this.img.frameIndex >= 2) {
@@ -67,3 +76,4 @@ Player.prototype.move = function() {
 };
 
 var KEY_UP = 38;
+var SPACE = 32;
